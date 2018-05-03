@@ -1,0 +1,43 @@
+{
+  "name": "cqrs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "flow": "flow check",
+    "test:watch": "set -a; . .env;  jest --watch",
+    "test:unit": "jest src/domain src/application",
+    "test:unit:watch": "npm run test:unit -- --watch",
+    "test:infra:watch": "set -a; . .env; jest src/infrastructure",
+    "test:integration": "set -a; . .env; npm run dCd && npm run dCu && npm run migrate && jest src/rest-api src/infrastructure -i && npm run dCd",
+    "test": "npm run flow && npm run test:unit && npm run test:integration",
+    "dCu": "docker-compose -f docker-compose.test.yml up -d; set -a; . .env; node ./tools/database/wait-for-mysql.js",
+    "dCd": "docker-compose -f docker-compose.test.yml down",
+    "create-migration": "db-migrate create --config ./tools/database/database.json -e mysql --migrations-dir ./tools/database/migrations --",
+    "migrate": "db-migrate up --config ./tools/database/database.json -e mysql --migrations-dir ./tools/database/migrations",
+    "start": "node ./rest-api/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-flow": "^6.23.0",
+    "babel-preset-stage-2": "^6.24.1",
+    "flow-bin": "^0.69.0",
+    "jest": "^22.4.3",
+    "ora": "^2.0.0",
+    "prettier": "^1.12.1",
+    "randomstring": "^1.1.5",
+    "supertest": "^3.0.0"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "db-migrate": "^0.10.7",
+    "db-migrate-mysql": "^1.1.10",
+    "express": "^4.16.3",
+    "flow-validator": "^0.6.2",
+    "mysql": "^2.15.0",
+    "uuid": "^3.2.1"
+  }
+}
