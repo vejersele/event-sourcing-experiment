@@ -2,33 +2,36 @@
 
 import Todo from '../todo';
 import TodoId from '../todo-id';
+import { TodoCollectionId as CollectionId } from '../../todo-collection';
 
 describe('Todo', () => {
-
-    const aTodo = () => Todo.create(TodoId.newId(), 'my todo');
+    const aTodo = () => Todo.create(TodoId.newId(), 'my todo', CollectionId.newId());
 
     test('create a todo', () => {
         // GIVEN
         const id = TodoId.newId();
         const name = 'my todo';
+        const collectionId = CollectionId.newId();
 
         // WHEN
-        const actual = Todo.create(id, name);
+        const actual = Todo.create(id, name, collectionId);
 
         // THEN
         expect(actual.id).toEqual(id);
         expect(actual.name).toEqual(name);
         expect(actual.isCompleted).toEqual(false);
+        expect(actual.collectionId).toEqual(collectionId);
     });
 
     test('initialize a Todo', () => {
         // GIVEN
         const id = TodoId.newId();
+        const collectionId = CollectionId.newId();
         const name = 'my todo';
         const isCompleted = true;
 
         // WHEN
-        const actual = new Todo(id, name, isCompleted);
+        const actual = new Todo(id, name, collectionId, isCompleted);
 
         // THEN
         expect(actual.id).toEqual(id);
@@ -65,8 +68,9 @@ describe('Todo', () => {
             const todo = aTodo();
 
             // WHEN
-            expect(() => { todo.name = '' })
-
+            expect(() => {
+                todo.name = '';
+            })
                 // THEN
                 .toThrow();
         });
@@ -81,6 +85,6 @@ describe('Todo', () => {
 
             // THEN
             expect(todo.name).toBe(todoName);
-        })
-    })
+        });
+    });
 });

@@ -19,15 +19,15 @@ exports.up = function(db) {
         'todo_collection',
         {
             id: { type: 'string', primaryKey: true },
-            name: { type: 'string', notNull: true },
-            todos: { type: 'json', notNull: true }
+            name: { type: 'string', notNull: true }
         },
         () => {
             db.createTable('todo', {
                 sequence_id: { type: 'int', autoIncrement: true, notNull: true, primaryKey: true },
                 id: { type: 'string', primaryKey: true },
                 name: { type: 'string', notNull: true },
-                is_completed: { type: 'boolean', notNull: true }
+                is_completed: { type: 'boolean', notNull: true },
+                collection_id: { type: 'string', notNull: true }
             });
         }
     );

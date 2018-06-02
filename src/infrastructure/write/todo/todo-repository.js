@@ -1,6 +1,7 @@
 // @flow
 
 import type { Connection } from 'mysql';
+import { TodoCollectionId as CollectionId } from '../../../domain/write/todo-collection/index';
 import { Todo, TodoId, TodoRepository as ITodoRepository } from '../../../domain/write/todo';
 
 export default class TodoRepository implements ITodoRepository {
@@ -11,14 +12,20 @@ export default class TodoRepository implements ITodoRepository {
     }
 
     _toTodo(row: Object) {
-        return new Todo(TodoId.from(row.id), row.name, !!row.is_completed);
+        return new Todo(
+            TodoId.from(row.id),
+            row.name,
+            CollectionId.from(row.collection_id),
+            !!row.is_completed
+        );
     }
 
     _todoToJSON(todo: Todo) {
         return {
             id: todo.id.value,
             name: todo.name,
-            is_completed: todo.isCompleted
+            is_completed: todo.isCompleted,
+            collection_id: todo.collectionId.value
         };
     }
 

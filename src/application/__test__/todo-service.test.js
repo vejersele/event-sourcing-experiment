@@ -1,7 +1,10 @@
 // @flow
 
 import { Todo } from '../../domain/write/todo';
-import { TodoCollectionId, TodoCollection } from '../../domain/write/todo-collection';
+import {
+    TodoCollectionId as CollectionId,
+    TodoCollection
+} from '../../domain/write/todo-collection';
 import { TodoId } from '../../domain/write/todo/index';
 import TodoService from '../todo-service';
 import * as mocks from './mocks';
@@ -19,7 +22,7 @@ describe('TodoService', () => {
     describe('createTodo', () => {
         test('add a todo when collection does not exist', async () => {
             // GIVEN
-            const nonExistingCollectionId = TodoCollectionId.newId();
+            const nonExistingCollectionId = CollectionId.newId();
             const todoName = 'my todo';
 
             collectionRepositoryMock.findById.mockReturnValue(Promise.resolve(null));
@@ -32,9 +35,8 @@ describe('TodoService', () => {
 
         test('add a todo', async () => {
             // GIVEN
-            const collection = TodoCollection.create(TodoCollectionId.newId(), 'my collection');
+            const collection = TodoCollection.create(CollectionId.newId(), 'my collection');
             const todoName = 'my todo';
-
 
             collectionRepositoryMock.findById.mockReturnValue(Promise.resolve(collection));
 
@@ -42,18 +44,14 @@ describe('TodoService', () => {
             const actual = await todoService.createTodo(todoName, collection.id.value);
 
             // THEN
-            expect(collectionRepositoryMock.update).toHaveBeenCalled();
             expect(todoRepositoryMock.persist).toHaveBeenCalled();
 
-            const persistedCollection: TodoCollection =
-                collectionRepositoryMock.update.mock.calls[0][0];
             const persistedTodo: Todo = todoRepositoryMock.persist.mock.calls[0][0];
 
             expect(persistedTodo.id).toBeDefined();
             expect(persistedTodo.name).toEqual(todoName);
             expect(persistedTodo.isCompleted).toEqual(false);
-
-            expect(persistedCollection.todos).toEqual([persistedTodo.id.value]);
+            expect(persistedTodo.collectionId).toEqual(collection.id);
 
             expect(actual).toBe(persistedTodo.id.value);
         });
@@ -62,7 +60,7 @@ describe('TodoService', () => {
     test('mark todo as completed', async () => {
         // GIVEN
         const id = TodoId.newId();
-        const todo = Todo.create(id, 'my todo');
+        const todo = Todo.create(id, 'my todo', CollectionId.newId());
         todoRepositoryMock.findById.mockImplementation(
             _id => (_id.value === id.value ? Promise.resolve(todo) : null)
         );
@@ -81,7 +79,7 @@ describe('TodoService', () => {
     test('set name of todo', async () => {
         // GIVEN
         const id = TodoId.newId();
-        const todo = Todo.create(id, 'my todo');
+        const todo = Todo.create(id, 'my todo', CollectionId.newId());
         todoRepositoryMock.findById.mockImplementation(
             _id => (_id.value === id.value ? Promise.resolve(todo) : null)
         );
@@ -98,5 +96,4 @@ describe('TodoService', () => {
 
         expect(updatedTodo.name).toBe(newName);
     });
-
 });

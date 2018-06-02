@@ -1,6 +1,7 @@
 // @flow
 
 import { TodoId, Todo } from '../../../../domain/write/todo';
+import { TodoCollectionId as CollectionId } from '../../../../domain/write/todo-collection';
 import { TodoRepository } from '../index';
 import { createConnection, endConnection } from '../../../utils/database';
 import createWrapper from '../../../utils/rollback-transaction';
@@ -32,7 +33,7 @@ describe('TodoRepository', () => {
 
         it('should return the todo', async () => {
             // GIVEN
-            const todo = Todo.create(TodoId.newId(), 'my todo');
+            const todo = Todo.create(TodoId.newId(), 'my todo', CollectionId.newId());
 
             // WHEN
             todo.markAsCompleted();
@@ -50,7 +51,7 @@ describe('TodoRepository', () => {
         it('should persist a todo', async () => {
             await rollbackTransaction(async () => {
                 // GIVEN
-                const todo = Todo.create(TodoId.newId(), 'my todo');
+                const todo = Todo.create(TodoId.newId(), 'my todo', CollectionId.newId());
 
                 // WHEN
                 await repository.persist(todo);
@@ -66,7 +67,7 @@ describe('TodoRepository', () => {
         it('should update the todo', async () => {
             await rollbackTransaction(async () => {
                 // GIVEN
-                const todo = Todo.create(TodoId.newId(), 'my todo');
+                const todo = Todo.create(TodoId.newId(), 'my todo', CollectionId.newId());
                 await repository.persist(todo);
 
                 // WHEN

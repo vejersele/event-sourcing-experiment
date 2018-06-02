@@ -17,14 +17,13 @@ export default class TodoCollectionRepository implements ITodoCollectionReposito
     _todoCollectionToJSON(todoCollection: TodoCollection) {
         return {
             id: todoCollection.id.value,
-            name: todoCollection.name,
-            todos: JSON.stringify(todoCollection.todos)
+            name: todoCollection.name
         };
     }
 
     _toTodoCollection(row: Object): TodoCollection {
         const id = TodoCollectionId.from(row.id);
-        return new TodoCollection(id, row.name, JSON.parse(row.todos));
+        return new TodoCollection(id, row.name);
     }
 
     persist(todoCollection: TodoCollection): Promise<void> {

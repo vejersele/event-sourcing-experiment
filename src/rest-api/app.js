@@ -16,9 +16,10 @@ const initializeApp = (connection: Connection) => {
 
     const todoCollectionRepository = new TodoCollectionRepository(connection);
     const todoRepository = new TodoRepository(connection);
+    const todoCollectionDao = new TodoCollectionDAO(connection);
+
     const todoCollectionService = new TodoCollectionService(todoCollectionRepository);
     const todoService = new TodoService(todoCollectionRepository, todoRepository);
-    const todoCollectionDao = new TodoCollectionDAO(connection);
 
     app.get('/todo-collection/:id', async (req: $Request, res: $Response) => {
         const id: string = string.parse(req.params.id);
@@ -74,7 +75,6 @@ const initializeApp = (connection: Connection) => {
             await todoService.setTodoCompleted(todoId, isCompleted);
 
             res.status(200).send();
-
         } catch (e) {
             res.status(400).send();
         }

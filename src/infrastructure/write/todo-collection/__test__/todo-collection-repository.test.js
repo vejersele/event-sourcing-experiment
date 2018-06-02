@@ -45,8 +45,8 @@ describe('TodoCollectionRepository', () => {
                 const name = 'myCollection';
                 const todoCollection = TodoCollection.create(id, name);
                 const todoIds = ['todo-1', 'todo-2'];
-                todoCollection.addTodo(todoIds[0]);
-                todoCollection.addTodo(todoIds[1]);
+                // todoCollection.addTodo(todoIds[0]);
+                // todoCollection.addTodo(todoIds[1]);
 
                 await repository.persist(todoCollection);
 
@@ -71,7 +71,7 @@ describe('TodoCollectionRepository', () => {
                 await repository.persist(todoCollection);
 
                 // WHEN
-                todoCollection.addTodo(todoId);
+                // todoCollection.addTodo(todoId);
                 repository.update(todoCollection);
                 const actual = await repository.findById(todoCollection.id);
 

@@ -21,12 +21,8 @@ class TodoBuilder {
         return this;
     }
 
-    build(): Todo {
+    build() {
         return Todo.create(this._id, this._name, this._isCompleted);
-    }
-
-    static aTodo() {
-        return new TodoBuilder();
     }
 }
 

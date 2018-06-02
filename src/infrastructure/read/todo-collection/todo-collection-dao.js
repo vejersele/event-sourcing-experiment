@@ -14,9 +14,7 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
         this._connection = connection;
     }
 
-    _findTodoCollectionDataById(
-        id: string
-    ): Promise<?{ id: string, name: string, todos: Array<string> }> {
+    _findTodoCollectionDataById(id: string): Promise<?{ id: string, name: string }> {
         return new Promise((resolve, reject) => {
             this._connection.query(
                 'SELECT * FROM todo_collection WHERE id = ?',
@@ -34,21 +32,18 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
 
                     resolve({
                         id: result[0].id,
-                        name: result[0].name,
-                        todos: JSON.parse(result[0].todos) || []
+                        name: result[0].name
                     });
                 }
             );
         });
     }
 
-    _findTodosForIds(ids: Array<string>): Promise<Array<Todo>> {
-        if (ids.length === 0) return Promise.resolve([]);
-
+    _findTodosForCollectionId(collectionId: string): Promise<Array<Todo>> {
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'SELECT * FROM todo WHERE id IN (?) ORDER BY sequence_id ASC',
-                [ids],
+                'SELECT * FROM todo WHERE collection_id = ? ORDER BY sequence_id ASC',
+                [collectionId],
                 (err, results) => {
                     if (err) {
                         reject(err);
@@ -74,32 +69,31 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
         return this._findTodoCollectionDataById(id).then(todoCollectionData => {
             if (!todoCollectionData) return null;
 
-            return this._findTodosForIds(todoCollectionData.todos).then(todos => {
+            return this._findTodosForCollectionId(todoCollectionData.id).then(todos => {
                 return TodoCollection.create(todoCollectionData.id, todoCollectionData.name, todos);
             });
         });
     }
 
-    _todoToJSON(todo: Todo) {
-        return [todo.id, todo.name, todo.isCompleted];
+    _todoToJSON(todo: Todo, collectionId: string) {
+        return [todo.id, todo.name, todo.isCompleted, collectionId];
     }
 
     _todoCollectionToJSON(todoCollection: TodoCollection) {
         return {
             id: todoCollection.id,
-            name: todoCollection.name,
-            todos: JSON.stringify(todoCollection.todos.map(todo => todo.id))
+            name: todoCollection.name
         };
     }
 
-    _persistTodos(todos: Array<Todo>): Promise<void> {
+    _persistTodos(todos: Array<Todo>, collectionId: string): Promise<void> {
         if (todos.length === 0) return Promise.resolve();
 
-        const data = todos.map(todo => this._todoToJSON(todo));
+        const data = todos.map(todo => this._todoToJSON(todo, collectionId));
 
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'INSERT INTO todo (id, name, is_completed) VALUES ?',
+                'INSERT INTO todo (id, name, is_completed, collection_id) VALUES ?',
                 [data],
                 (err, result) => {
                     if (err) {
@@ -127,7 +121,7 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
     }
 
     persist(todoCollection: TodoCollection): Promise<void> {
-        return this._persistTodos(todoCollection.todos).then(() => {
+        return this._persistTodos(todoCollection.todos, todoCollection.id).then(() => {
             return this._persistTodoCollection(todoCollection);
         });
     }

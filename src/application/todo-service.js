@@ -27,11 +27,8 @@ export default class TodoService {
             );
         }
 
-        const todo = Todo.create(TodoId.newId(), todoName);
+        const todo = Todo.create(TodoId.newId(), todoName, collectionId);
         await this._todoRepository.persist(todo);
-
-        collection.addTodo(todo.id.value);
-        await this._todoCollectionRepository.update(collection);
 
         return todo.id.value;
     }
@@ -47,7 +44,6 @@ export default class TodoService {
     }
 
     async setTodoCompleted(id: string, isCompleted: boolean): Promise<void> {
-
         const todo = await this.getTodoByIdOrThrow(id);
 
         if (isCompleted) {

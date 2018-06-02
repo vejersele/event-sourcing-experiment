@@ -14,7 +14,7 @@ describe('TodoCollectionService', () => {
         service = new TodoCollectionService(collectionRepositoryMock);
     });
 
-    describe('persist', () => {
+    describe('createTodoCollection', () => {
         it('should create a TodoCollection and return the ID', async () => {
             // GIVEN
             const todoCollectionName = 'myCollection';
@@ -30,7 +30,6 @@ describe('TodoCollectionService', () => {
 
             expect(persistedTodoCollection.id).toBeDefined();
             expect(persistedTodoCollection.name).toBe(todoCollectionName);
-            expect(persistedTodoCollection.todos).toEqual([]);
 
             expect(actual).toEqual(persistedTodoCollection.id.value);
         });
