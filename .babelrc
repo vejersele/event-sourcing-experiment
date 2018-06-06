@@ -1,4 +1,17 @@
 {
-    "presets": ["es2015", "stage-2", "flow"],
-    "plugins": []
+    "presets": [
+        [
+            "env",
+            {
+                "targets": {
+                    "node": "10.3.0"
+                }
+            }
+        ]
+    ],
+    "plugins": [
+        "transform-class-properties",
+        "transform-object-rest-spread",
+        "transform-flow-strip-types"
+    ]
 }

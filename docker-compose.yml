@@ -1,9 +1,13 @@
 version: '3'
 services:
-    cqrs_mysql:
+    web:
+        build: .
+        ports:
+          - "3000:3000"
+        env_file:
+          - ".env"
+    mysql:
         environment:
           - MYSQL_ROOT_PASSWORD=root
           - MYSQL_DATABASE=todo
         image: mysql:latest
-        ports:
-          - "3305:3306"

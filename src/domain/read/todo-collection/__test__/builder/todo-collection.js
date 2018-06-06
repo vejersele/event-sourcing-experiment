@@ -33,7 +33,7 @@ class TodoCollectionBuilder {
     }
 
     build() {
-        return new TodoCollection.create(this._id, this._name, this._todos);
+        return TodoCollection.create(this._id, this._name, this._todos);
     }
 }
 
