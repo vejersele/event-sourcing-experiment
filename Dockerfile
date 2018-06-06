@@ -4,7 +4,7 @@ WORKDIR /app
 
 ADD . .
 
-RUN npm install --quit && npm run flow && npm run test:unit && npm run build
+RUN npm install --quit && npm run build
 
 EXPOSE 3000
 
