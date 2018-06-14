@@ -6,21 +6,21 @@
     "scripts": {
         "flow": "flow check",
         "test:unit": "jest __test__/",
-        "test:integration":
-            "node ./tools/database/wait-for-mysql.js && npm run migrate && jest __integrationTest__ -i",
+        "test:unit:watch": "jest __test__/ --watch",
+        "test:integration": "node ./tools/database/wait-for-mysql.js && npm run migrate && jest __integrationTest__ -i",
         "test": "npm run flow && npm run test:unit && npm run test:integration",
         "build": "npm run flow && npm run test:unit && babel src -d dist",
-        "create-migration":
-            "db-migrate create --config ./tools/database/database.json -e mysql --migrations-dir ./tools/database/migrations --",
-        "migrate":
-            "db-migrate up --config ./tools/database/database.json -e mysql --migrations-dir ./tools/database/migrations",
-        "start":
-            "node ./tools/database/wait-for-mysql.js && npm run migrate && node ./dist/rest-api/index.js"
+        "create-migration": "db-migrate create --config ./tools/database/database.json -e mysql --migrations-dir ./tools/database/migrations --",
+        "migrate": "db-migrate up --config ./tools/database/database.json -e mysql --migrations-dir ./tools/database/migrations",
+        "start": "node ./tools/database/wait-for-mysql.js && npm run migrate && node ./dist/rest-api/index.js"
     },
     "jest": {
-        "testPathIgnorePatterns": ["node_modules", "dist"]
+        "testPathIgnorePatterns": [
+            "node_modules",
+            "dist"
+        ]
     },
-    "author": "",
+    "author": "Jelle Versele",
     "license": "ISC",
     "devDependencies": {
         "babel-cli": "^6.26.0",
@@ -42,6 +42,7 @@
         "express": "^4.16.3",
         "flow-validator": "^0.6.2",
         "mysql": "^2.15.0",
+        "tukio": "^1.0.3",
         "uuid": "^3.2.1"
     }
 }

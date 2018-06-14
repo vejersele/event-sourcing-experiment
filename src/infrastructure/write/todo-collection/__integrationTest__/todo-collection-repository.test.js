@@ -2,17 +2,22 @@
 
 import { type Connection } from 'mysql';
 import { TodoCollectionId, TodoCollection } from '../../../../domain/write/todo-collection';
+import { TodoCollectionPersisted } from '../../../../domain/events';
 import { TodoCollectionRepository } from '../../todo-collection';
 import { createConnection, endConnection } from '../../../utils/database';
 import createWrapper from '../../../utils/rollback-transaction';
+import EventBus from '../../../event-bus';
 
 describe('TodoCollectionRepository', () => {
-    let connection, repository, rollbackTransaction;
+    let connection, repository, rollbackTransaction, eventBus;
 
     beforeAll(() => {
+        eventBus = new EventBus();
         connection = createConnection();
         rollbackTransaction = createWrapper(connection);
-        repository = new TodoCollectionRepository(connection);
+        repository = new TodoCollectionRepository(connection, eventBus);
+
+        jest.spyOn(eventBus, 'publish');
     });
 
     afterAll(() => {
@@ -35,6 +40,23 @@ describe('TodoCollectionRepository', () => {
                 expect(actual).toEqual(todoCollection);
             });
         });
+
+        it('should publish a TodoCollectionPersited event', async () => {
+            await rollbackTransaction(async () => {
+                // GIVEN
+                const id = TodoCollectionId.newId();
+                const name = 'myCollection';
+                const todoCollection = TodoCollection.create(id, name);
+
+                // WHEN
+                await repository.persist(todoCollection);
+
+                // THEN
+                expect(eventBus.publish).toHaveBeenCalledWith(
+                    new TodoCollectionPersisted(id.value, name)
+                );
+            });
+        });
     });
 
     describe('findById', () => {
@@ -45,8 +67,6 @@ describe('TodoCollectionRepository', () => {
                 const name = 'myCollection';
                 const todoCollection = TodoCollection.create(id, name);
                 const todoIds = ['todo-1', 'todo-2'];
-                // todoCollection.addTodo(todoIds[0]);
-                // todoCollection.addTodo(todoIds[1]);
 
                 await repository.persist(todoCollection);
 

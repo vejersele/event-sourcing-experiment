@@ -1,6 +1,7 @@
 // @flow
 
 import type { Connection } from 'mysql';
+import TodoCollectionPersisted from '../../../domain/events/todo-collection-persisted';
 import { TodoCollectionId as CollectionId } from '../../../domain/write/todo-collection/index';
 import { Todo, TodoId, TodoRepository as ITodoRepository } from '../../../domain/write/todo';
 
@@ -33,7 +34,7 @@ export default class TodoRepository implements ITodoRepository {
         const data = this._todoToJSON(todo);
 
         return new Promise((resolve, reject) => {
-            this._connection.query('INSERT INTO todo SET ?', data, (err, result) => {
+            this._connection.query('INSERT INTO write_todo SET ?', data, (err, result) => {
                 if (err) {
                     reject(err);
                     return;
@@ -48,7 +49,7 @@ export default class TodoRepository implements ITodoRepository {
 
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'UPDATE todo SET ? WHERE id = ?',
+                'UPDATE write_todo SET ? WHERE id = ?',
                 [data, data.id],
                 (err, result) => {
                     if (err) {
@@ -65,7 +66,7 @@ export default class TodoRepository implements ITodoRepository {
     findById(id: TodoId): Promise<?Todo> {
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'SELECT * FROM todo WHERE id = ?',
+                'SELECT * FROM write_todo WHERE id = ?',
                 [id.value],
                 (err, results) => {
                     if (err) {

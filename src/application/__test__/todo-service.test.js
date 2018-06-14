@@ -7,7 +7,7 @@ import {
 } from '../../domain/write/todo-collection';
 import { TodoId } from '../../domain/write/todo/index';
 import TodoService from '../todo-service';
-import * as mocks from './mocks';
+import * as mocks from '../__mocks__';
 
 describe('TodoService', () => {
     let todoService, collectionRepositoryMock, todoRepositoryMock;

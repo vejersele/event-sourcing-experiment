@@ -1,6 +1,9 @@
 // @flow
 
+import type { EventBus } from '../../../domain/event-bus';
+
 import { Connection } from 'mysql';
+import { TodoCollectionPersisted } from '../../../domain/events/index';
 import {
     type TodoCollectionRepository as ITodoCollectionRepository,
     TodoCollection,
@@ -9,9 +12,11 @@ import {
 
 export default class TodoCollectionRepository implements ITodoCollectionRepository {
     _connection: Connection;
+    _eventBus: EventBus;
 
-    constructor(connection: Connection) {
+    constructor(connection: Connection, eventBus: EventBus) {
         this._connection = connection;
+        this._eventBus = eventBus;
     }
 
     _todoCollectionToJSON(todoCollection: TodoCollection) {
@@ -30,13 +35,21 @@ export default class TodoCollectionRepository implements ITodoCollectionReposito
         const data = this._todoCollectionToJSON(todoCollection);
 
         return new Promise((resolve, reject) => {
-            this._connection.query('INSERT INTO todo_collection SET ?', data, (err, result) => {
-                if (err) {
-                    reject(err);
-                    return;
+            this._connection.query(
+                'INSERT INTO write_todo_collection SET ?',
+                data,
+                (err, result) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve();
                 }
-                resolve();
-            });
+            );
+        }).then(() => {
+            this._eventBus.publish(
+                new TodoCollectionPersisted(todoCollection.id.value, todoCollection.name)
+            );
         });
     }
 
@@ -46,7 +59,7 @@ export default class TodoCollectionRepository implements ITodoCollectionReposito
 
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'UPDATE todo_collection SET ? WHERE id = ?',
+                'UPDATE write_todo_collection SET ? WHERE id = ?',
                 [data, id],
                 (err, result) => {
                     if (err) {
@@ -63,7 +76,7 @@ export default class TodoCollectionRepository implements ITodoCollectionReposito
     findById(id: TodoCollectionId): Promise<?TodoCollection> {
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'SELECT * FROM todo_collection WHERE id = ?',
+                'SELECT * FROM write_todo_collection WHERE id = ?',
                 [id.value],
                 (err, results) => {
                     if (err) {

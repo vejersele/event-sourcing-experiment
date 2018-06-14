@@ -17,7 +17,7 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
     _findTodoCollectionDataById(id: string): Promise<?{ id: string, name: string }> {
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'SELECT * FROM todo_collection WHERE id = ?',
+                'SELECT * FROM write_todo_collection WHERE id = ?',
                 [id],
                 (err, result) => {
                     if (err) {
@@ -42,7 +42,7 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
     _findTodosForCollectionId(collectionId: string): Promise<Array<Todo>> {
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'SELECT * FROM todo WHERE collection_id = ? ORDER BY sequence_id ASC',
+                'SELECT * FROM write_todo WHERE collection_id = ? ORDER BY sequence_id ASC',
                 [collectionId],
                 (err, results) => {
                     if (err) {
@@ -93,7 +93,7 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
 
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'INSERT INTO todo (id, name, is_completed, collection_id) VALUES ?',
+                'INSERT INTO write_todo (id, name, is_completed, collection_id) VALUES ?',
                 [data],
                 (err, result) => {
                     if (err) {
@@ -110,19 +110,50 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
         const data = this._todoCollectionToJSON(todoCollection);
 
         return new Promise((resolve, reject) => {
-            this._connection.query('INSERT INTO todo_collection SET ?', data, (err, result) => {
-                if (err) {
-                    reject(err);
-                    return;
+            this._connection.query(
+                'INSERT INTO write_todo_collection SET ?',
+                data,
+                (err, result) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve();
                 }
-                resolve();
-            });
+            );
         });
     }
 
     persist(todoCollection: TodoCollection): Promise<void> {
         return this._persistTodos(todoCollection.todos, todoCollection.id).then(() => {
             return this._persistTodoCollection(todoCollection);
+        });
+    }
+
+    persistReadModel(todoCollection: TodoCollection): Promise<void> {
+        const todoCollectionJSON = {
+            id: todoCollection.id,
+            name: todoCollection.name,
+            todos: todoCollection.todos
+        };
+
+        const data = {
+            id: todoCollection.id,
+            todo_collection: JSON.stringify(todoCollectionJSON)
+        };
+
+        return new Promise((resolve, reject) => {
+            this._connection.query(
+                'INSERT INTO read_todo_collection SET ?',
+                data,
+                (err, result) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve();
+                }
+            );
         });
     }
 }

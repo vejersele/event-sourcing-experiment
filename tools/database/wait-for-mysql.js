@@ -1,4 +1,5 @@
 // @flow
+
 const Spinner = require('ora');
 const mysql = require('mysql');
 
@@ -55,9 +56,13 @@ const waitForMysql = () => {
         ping(handlePing);
     });
 
-    return promise.then(res => {
-        spinner.succeed('Mysql is available!');
-    });
+    return promise
+        .then(res => {
+            spinner.succeed('Mysql is available!');
+        })
+        .catch(e => {
+            console.error('Something went wrong ...');
+        });
 };
 
 waitForMysql();
