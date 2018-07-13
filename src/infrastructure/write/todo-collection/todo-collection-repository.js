@@ -47,28 +47,8 @@ export default class TodoCollectionRepository implements ITodoCollectionReposito
                 }
             );
         }).then(() => {
-            this._eventBus.publish(
+            return this._eventBus.publish(
                 new TodoCollectionPersisted(todoCollection.id.value, todoCollection.name)
-            );
-        });
-    }
-
-    update(todoCollection: TodoCollection): Promise<void> {
-        const data = this._todoCollectionToJSON(todoCollection);
-        const id = todoCollection.id.value;
-
-        return new Promise((resolve, reject) => {
-            this._connection.query(
-                'UPDATE write_todo_collection SET ? WHERE id = ?',
-                [data, id],
-                (err, result) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-
-                    resolve();
-                }
             );
         });
     }

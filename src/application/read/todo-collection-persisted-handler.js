@@ -14,8 +14,8 @@ export default class TodoCollectionPersistedHandler
         this._todoCollectionDAO = todoCollectionDAO;
     }
 
-    handle(event: TodoCollectionPersisted) {
+    async handle(event: TodoCollectionPersisted) {
         const todoCollection = TodoCollection.create(event.id, event.name);
-        this._todoCollectionDAO.persistReadModel(todoCollection);
+        await this._todoCollectionDAO.persist(todoCollection);
     }
 }

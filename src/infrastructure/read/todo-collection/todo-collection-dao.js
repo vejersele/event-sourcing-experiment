@@ -14,36 +14,21 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
         this._connection = connection;
     }
 
-    _findTodoCollectionDataById(id: string): Promise<?{ id: string, name: string }> {
-        return new Promise((resolve, reject) => {
-            this._connection.query(
-                'SELECT * FROM write_todo_collection WHERE id = ?',
-                [id],
-                (err, result) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
+    _toTodoCollection(row: Object): TodoCollection {
+        const data = JSON.parse(row.todo_collection);
 
-                    if (result.length === 0) {
-                        resolve();
-                        return;
-                    }
+        const todos = data.todos.map(todoData =>
+            Todo.create(todoData.id, todoData.name, todoData.isCompleted)
+        );
 
-                    resolve({
-                        id: result[0].id,
-                        name: result[0].name
-                    });
-                }
-            );
-        });
+        return TodoCollection.create(data.id, data.name, todos);
     }
 
-    _findTodosForCollectionId(collectionId: string): Promise<Array<Todo>> {
+    findById(id: string): Promise<?TodoCollection> {
         return new Promise((resolve, reject) => {
             this._connection.query(
-                'SELECT * FROM write_todo WHERE collection_id = ? ORDER BY sequence_id ASC',
-                [collectionId],
+                'SELECT todo_collection FROM read_todo_collection WHERE id = ?',
+                [id],
                 (err, results) => {
                     if (err) {
                         reject(err);
@@ -51,95 +36,33 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
                     }
 
                     if (results.length === 0) {
-                        resolve([]);
+                        resolve();
                         return;
                     }
 
-                    const todos = results.map(row => {
-                        return Todo.create(row.id, row.name, !!row.is_completed);
-                    });
-
-                    resolve(todos);
+                    const todoCollection = this._toTodoCollection(results[0]);
+                    resolve(todoCollection);
                 }
             );
         });
     }
 
-    findById(id: string): Promise<?TodoCollection> {
-        return this._findTodoCollectionDataById(id).then(todoCollectionData => {
-            if (!todoCollectionData) return null;
-
-            return this._findTodosForCollectionId(todoCollectionData.id).then(todos => {
-                return TodoCollection.create(todoCollectionData.id, todoCollectionData.name, todos);
-            });
-        });
-    }
-
-    _todoToJSON(todo: Todo, collectionId: string) {
-        return [todo.id, todo.name, todo.isCompleted, collectionId];
-    }
-
-    _todoCollectionToJSON(todoCollection: TodoCollection) {
-        return {
+    _toJSON(todoCollection: TodoCollection): string {
+        return JSON.stringify({
             id: todoCollection.id,
-            name: todoCollection.name
-        };
-    }
-
-    _persistTodos(todos: Array<Todo>, collectionId: string): Promise<void> {
-        if (todos.length === 0) return Promise.resolve();
-
-        const data = todos.map(todo => this._todoToJSON(todo, collectionId));
-
-        return new Promise((resolve, reject) => {
-            this._connection.query(
-                'INSERT INTO write_todo (id, name, is_completed, collection_id) VALUES ?',
-                [data],
-                (err, result) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve();
-                }
-            );
-        });
-    }
-
-    _persistTodoCollection(todoCollection: TodoCollection): Promise<void> {
-        const data = this._todoCollectionToJSON(todoCollection);
-
-        return new Promise((resolve, reject) => {
-            this._connection.query(
-                'INSERT INTO write_todo_collection SET ?',
-                data,
-                (err, result) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve();
-                }
-            );
+            name: todoCollection.name,
+            todos: todoCollection.todos.map(todo => ({
+                id: todo.id,
+                name: todo.name,
+                isCompleted: todo.isCompleted
+            }))
         });
     }
 
     persist(todoCollection: TodoCollection): Promise<void> {
-        return this._persistTodos(todoCollection.todos, todoCollection.id).then(() => {
-            return this._persistTodoCollection(todoCollection);
-        });
-    }
-
-    persistReadModel(todoCollection: TodoCollection): Promise<void> {
-        const todoCollectionJSON = {
-            id: todoCollection.id,
-            name: todoCollection.name,
-            todos: todoCollection.todos
-        };
-
         const data = {
             id: todoCollection.id,
-            todo_collection: JSON.stringify(todoCollectionJSON)
+            todo_collection: this._toJSON(todoCollection)
         };
 
         return new Promise((resolve, reject) => {
@@ -151,6 +74,29 @@ export default class TodoCollectionDAO implements ITodoCollectionDAO {
                         reject(err);
                         return;
                     }
+                    resolve();
+                }
+            );
+        });
+    }
+
+    update(todoCollection: TodoCollection): Promise<void> {
+        const data = {
+            todo_collection: this._toJSON(todoCollection)
+        };
+
+        const id = todoCollection.id;
+
+        return new Promise((resolve, reject) => {
+            this._connection.query(
+                'UPDATE read_todo_collection SET ? WHERE id = ?',
+                [data, id],
+                (err, result) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+
                     resolve();
                 }
             );

@@ -5,6 +5,7 @@ import express, { type $Response, type $Request } from 'express';
 import bodyParser from 'body-parser';
 import { type Connection } from 'mysql';
 import TodoCollectionPersistedHandler from '../application/read/todo-collection-persisted-handler';
+import TodoPersistedHandler from '../application/read/todo-persisted-handler';
 import TodoCollectionService from '../application/todo-collection-service';
 import TodoService from '../application/todo-service';
 import { TodoCollectionDAO, toJSON } from '../infrastructure/read/todo-collection';
@@ -19,13 +20,16 @@ const initializeApp = (connection: Connection) => {
     const eventBus = new EventBus();
 
     const todoCollectionRepository = new TodoCollectionRepository(connection, eventBus);
-    const todoRepository = new TodoRepository(connection);
+    const todoRepository = new TodoRepository(connection, eventBus);
     const todoCollectionDao = new TodoCollectionDAO(connection);
 
     const todoCollectionService = new TodoCollectionService(todoCollectionRepository);
     const todoService = new TodoService(todoCollectionRepository, todoRepository);
 
-    eventBus.registerEventHandlers([new TodoCollectionPersistedHandler(todoCollectionDao)]);
+    eventBus.registerEventHandlers([
+        new TodoCollectionPersistedHandler(todoCollectionDao),
+        new TodoPersistedHandler(todoCollectionDao)
+    ]);
 
     app.get('/todo-collection/:id', async (req: $Request, res: $Response) => {
         const id: string = string.parse(req.params.id);

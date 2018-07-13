@@ -5,14 +5,18 @@
     "main": "index.js",
     "scripts": {
         "flow": "flow check",
+        "wfs": "node ./tools/database/wait-for-mysql.js",
         "test:unit": "jest __test__/",
         "test:unit:watch": "jest __test__/ --watch",
-        "test:integration": "node ./tools/database/wait-for-mysql.js && npm run migrate && jest __integrationTest__ -i",
+        "test:integration": "npm run wfs && npm run migrate && jest __integrationTest__ -i",
         "test": "npm run flow && npm run test:unit && npm run test:integration",
         "build": "npm run flow && npm run test:unit && babel src -d dist",
         "create-migration": "db-migrate create --config ./tools/database/database.json -e mysql --migrations-dir ./tools/database/migrations --",
         "migrate": "db-migrate up --config ./tools/database/database.json -e mysql --migrations-dir ./tools/database/migrations",
-        "start": "node ./tools/database/wait-for-mysql.js && npm run migrate && node ./dist/rest-api/index.js"
+        "start": "node ./tools/database/wait-for-mysql.js && npm run migrate && node ./dist/rest-api/index.js",
+        "dCU": "docker-compose -f docker-compose.test.yml up -d ",
+        "dCD": "docker-compose -f docker-compose.test.yml down",
+        "local:test": "set -a; . .env; npm run flow && npm run test:unit && npm run dCD && npm run dCU && npm run wfs && npm run migrate && npm run test:integration && npm run dCD"
     },
     "jest": {
         "testPathIgnorePatterns": [
@@ -29,7 +33,7 @@
         "babel-plugin-transform-object-rest-spread": "^6.26.0",
         "babel-preset-env": "^1.7.0",
         "flow-bin": "^0.73.0",
-        "jest": "^22.4.3",
+        "jest": "^23.4.0",
         "ora": "^2.0.0",
         "prettier": "^1.12.1",
         "randomstring": "^1.1.5",
@@ -42,7 +46,7 @@
         "express": "^4.16.3",
         "flow-validator": "^0.6.2",
         "mysql": "^2.15.0",
-        "tukio": "^1.0.3",
+        "tukio": "^1.1.0",
         "uuid": "^3.2.1"
     }
 }

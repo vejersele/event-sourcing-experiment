@@ -1,15 +1,19 @@
 // @flow
 
 import type { Connection } from 'mysql';
+import type { EventBus } from '../../../domain/event-bus';
 import TodoCollectionPersisted from '../../../domain/events/todo-collection-persisted';
+import TodoPersistedEvent from '../../../domain/events/todo-persisted';
 import { TodoCollectionId as CollectionId } from '../../../domain/write/todo-collection/index';
 import { Todo, TodoId, TodoRepository as ITodoRepository } from '../../../domain/write/todo';
 
 export default class TodoRepository implements ITodoRepository {
     _connection: Connection;
+    _eventBus: EventBus;
 
-    constructor(connection: Connection) {
+    constructor(connection: Connection, eventBus: EventBus) {
         this._connection = connection;
+        this._eventBus = eventBus;
     }
 
     _toTodo(row: Object) {
@@ -41,6 +45,15 @@ export default class TodoRepository implements ITodoRepository {
                 }
                 resolve();
             });
+        }).then(() => {
+            return this._eventBus.publish(
+                new TodoPersistedEvent(
+                    todo.id.value,
+                    todo.name,
+                    todo.collectionId.value,
+                    todo.isCompleted
+                )
+            );
         });
     }
 
@@ -59,6 +72,15 @@ export default class TodoRepository implements ITodoRepository {
 
                     resolve();
                 }
+            );
+        }).then(() => {
+            return this._eventBus.publish(
+                new TodoPersistedEvent(
+                    todo.id.value,
+                    todo.name,
+                    todo.collectionId.value,
+                    todo.isCompleted
+                )
             );
         });
     }

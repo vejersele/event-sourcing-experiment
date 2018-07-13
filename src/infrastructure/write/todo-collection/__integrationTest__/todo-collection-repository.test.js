@@ -79,25 +79,24 @@ describe('TodoCollectionRepository', () => {
         });
     });
 
-    describe('update', () => {
-        it('should update the todo in the database', async () => {
-            await rollbackTransaction(async () => {
-                // GIVEN
-                const id = TodoCollectionId.newId();
-                const name = 'myCollection';
-                const todoCollection = TodoCollection.create(id, name);
-                const todoId = 'todo-1';
-
-                await repository.persist(todoCollection);
-
-                // WHEN
-                // todoCollection.addTodo(todoId);
-                repository.update(todoCollection);
-                const actual = await repository.findById(todoCollection.id);
-
-                // THEN
-                expect(actual).toEqual(todoCollection);
-            });
-        });
-    });
+    // describe('update', () => {
+    //     it('should update the todo in the database', async () => {
+    //         await rollbackTransaction(async () => {
+    //             // GIVEN
+    //             const id = TodoCollectionId.newId();
+    //             const name = 'myCollection';
+    //             const todoCollection = TodoCollection.create(id, name);
+    //             const todoId = 'todo-1';
+    //
+    //             await repository.persist(todoCollection);
+    //
+    //             // WHEN
+    //             repository.update(todoCollection);
+    //             const actual = await repository.findById(todoCollection.id);
+    //
+    //             // THEN
+    //             expect(actual).toEqual(todoCollection);
+    //         });
+    //     });
+    // });
 });

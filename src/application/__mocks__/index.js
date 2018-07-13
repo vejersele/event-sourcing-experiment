@@ -15,7 +15,7 @@ export const todoRepositoryMock = (jest: JestObjectType) => ({
 });
 
 export const collectionDAO = (jest: JestObjectType) => ({
-    persistReadModel: jest.fn(),
     persist: jest.fn(),
-    findById: jest.fn()
+    findById: jest.fn(),
+    update: jest.fn()
 });

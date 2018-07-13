@@ -1,13 +1,9 @@
 version: '3'
 services:
-    web:
-        build: .
-        ports:
-          - "3000:3000"
-        env_file:
-          - ".docker-env"
     mysql:
         environment:
           - MYSQL_ROOT_PASSWORD=root
           - MYSQL_DATABASE=todo
         image: mysql:latest
+        ports:
+          - "3305:3306"

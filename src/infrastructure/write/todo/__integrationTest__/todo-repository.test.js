@@ -1,18 +1,23 @@
 // @flow
 
+import TodoPersistedEvent from '../../../../domain/events/todo-persisted';
 import { TodoId, Todo } from '../../../../domain/write/todo';
 import { TodoCollectionId as CollectionId } from '../../../../domain/write/todo-collection';
 import { TodoRepository } from '../index';
 import { createConnection, endConnection } from '../../../utils/database';
 import createWrapper from '../../../utils/rollback-transaction';
+import EventBus from '../../../event-bus';
 
 describe('TodoRepository', () => {
-    let connection, repository, rollbackTransaction;
+    let connection, repository, rollbackTransaction, eventBus;
 
     beforeAll(() => {
+        eventBus = new EventBus();
         connection = createConnection();
         rollbackTransaction = createWrapper(connection);
-        repository = new TodoRepository(connection);
+        repository = new TodoRepository(connection, eventBus);
+
+        jest.spyOn(eventBus, 'publish');
     });
 
     afterAll(() => {
@@ -61,6 +66,26 @@ describe('TodoRepository', () => {
                 expect(actual).toEqual(todo);
             });
         });
+
+        it('should publish a TodoPersistedEvent', async () => {
+            await rollbackTransaction(async () => {
+                // GIVEN
+                const todo = Todo.create(TodoId.newId(), 'my todo', CollectionId.newId());
+
+                // WHEN
+                await repository.persist(todo);
+
+                // THEN
+                expect(eventBus.publish).toHaveBeenCalledWith(
+                    new TodoPersistedEvent(
+                        todo.id.value,
+                        todo.name,
+                        todo.collectionId.value,
+                        todo.isCompleted
+                    )
+                );
+            });
+        });
     });
 
     describe('update', () => {
@@ -78,6 +103,29 @@ describe('TodoRepository', () => {
 
                 // THEN
                 expect(actual.isCompleted).toBe(true);
+            });
+        });
+
+        it('should publish a TodoPersisted Event', async () => {
+            await rollbackTransaction(async () => {
+                // GIVEN
+                const todo = Todo.create(TodoId.newId(), 'my todo', CollectionId.newId());
+                await repository.persist(todo);
+                eventBus.publish.mockClear();
+
+                // WHEN
+                todo.markAsCompleted();
+                await repository.update(todo);
+
+                // THEN
+                expect(eventBus.publish).toHaveBeenCalledWith(
+                    new TodoPersistedEvent(
+                        todo.id.value,
+                        todo.name,
+                        todo.collectionId.value,
+                        todo.isCompleted
+                    )
+                );
             });
         });
     });

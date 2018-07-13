@@ -2,18 +2,23 @@
 
 import request from 'supertest';
 import aTodoCollection from '../../domain/read/todo-collection/__test__/builder/todo-collection';
+import { TodoCollection, TodoCollectionId } from '../../domain/write/todo-collection';
 import { TodoCollectionDAO } from '../../infrastructure/read/todo-collection';
+import { TodoCollectionRepository } from '../../infrastructure/write/todo-collection';
 import { createConnection, endConnection } from '../../infrastructure/utils/database';
 import initializeApp from '../app';
+import EventBus from '../../infrastructure/event-bus';
 
 describe('/app', () => {
-    let connection, repository, dao, app;
+    let connection, repository, dao, app, collectionRepository, eventBus;
 
     const NON_EXISTING_ID = 'non-existing-id';
 
     beforeAll(() => {
         connection = createConnection();
         dao = new TodoCollectionDAO(connection);
+        eventBus = new EventBus();
+        collectionRepository = new TodoCollectionRepository(connection, eventBus);
         app = initializeApp(connection);
     });
 
@@ -134,17 +139,17 @@ describe('/app', () => {
 
         it('should return the created todo id', async () => {
             // GIVEN
-            const todoCollection = aTodoCollection()
-                .withCompletedTodo()
-                .withTodo()
-                .build();
+            const todoCollection = TodoCollection.create(
+                TodoCollectionId.newId(),
+                'collectionName'
+            );
 
             const todoName = 'my todo';
 
-            await dao.persist(todoCollection);
+            await collectionRepository.persist(todoCollection);
 
             // WHEN
-            const response = await postTodo(todoCollection.id, todoName);
+            const response = await postTodo(todoCollection.id.value, todoName);
 
             // THEN
             expect(response.statusCode).toBe(200);
@@ -172,12 +177,22 @@ describe('/app', () => {
             const isCompleted = true;
 
             // WHEN
-            const { body: { id: collectionId } } = await postTodoCollection(collectionName);
-            const { body: { data: { id: todoId } } } = await postTodo(collectionId, todoName);
+            const {
+                body: { id: collectionId }
+            } = await postTodoCollection(collectionName);
+            const {
+                body: {
+                    data: { id: todoId }
+                }
+            } = await postTodo(collectionId, todoName);
 
             const { statusCode } = await putTodoCompleted(todoId, isCompleted);
 
-            const { body: { data: { todos } } } = await getTodoCollection(collectionId);
+            const {
+                body: {
+                    data: { todos }
+                }
+            } = await getTodoCollection(collectionId);
 
             // THEN
             expect(statusCode).toBe(200);

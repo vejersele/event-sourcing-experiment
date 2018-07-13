@@ -12,7 +12,7 @@ describe('TodoCollectionPersistedHandler', () => {
         collectionDAOMock = collectionDAO(jest);
     });
 
-    test('Should persist read model', () => {
+    test('Should persist read model', async () => {
         // GIVEN
         const id = 'id-1';
         const name = 'collection-1';
@@ -20,11 +20,9 @@ describe('TodoCollectionPersistedHandler', () => {
         const event = new TodoCollectionPersisted(id, name);
 
         // WHEN
-        handler.handle(event);
+        await handler.handle(event);
 
         // THEN
-        expect(collectionDAOMock.persistReadModel).toHaveBeenCalledWith(
-            TodoCollection.create(id, name)
-        );
+        expect(collectionDAOMock.persist).toHaveBeenCalledWith(TodoCollection.create(id, name));
     });
 });
