@@ -31,7 +31,7 @@ describe('TodoCollectionService', () => {
             expect(persistedTodoCollection.id).toBeDefined();
             expect(persistedTodoCollection.name).toBe(todoCollectionName);
 
-            expect(actual).toEqual(persistedTodoCollection.id.value);
+            expect(actual).toBe(persistedTodoCollection.id.value);
         });
     });
 
@@ -49,7 +49,7 @@ describe('TodoCollectionService', () => {
 
             // THEN
             expect(collectionRepositoryMock.findById).toHaveBeenCalledWith(id);
-            expect(actual).toEqual(todoCollection);
+            expect(actual).toStrictEqual(todoCollection);
         });
     });
 });

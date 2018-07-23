@@ -33,7 +33,7 @@ describe('TodoRepository', () => {
             const actual = await repository.findById(nonExistingTodoId);
 
             // THEN
-            expect(actual).not.toEqual(null);
+            expect(actual).toBeUndefined();
         });
 
         it('should return the todo', async () => {
@@ -63,7 +63,7 @@ describe('TodoRepository', () => {
                 const actual = await repository.findById(todo.id);
 
                 // THEN
-                expect(actual).toEqual(todo);
+                expect(actual).toStrictEqual(todo);
             });
         });
 

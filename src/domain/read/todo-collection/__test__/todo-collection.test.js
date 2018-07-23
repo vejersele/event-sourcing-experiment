@@ -42,7 +42,7 @@ describe('TodoCollection', () => {
         todoCollection.addTodo(todo);
 
         // THEN
-        expect(todoCollection.todos).toEqual([todo]);
+        expect(todoCollection.todos).toStrictEqual([todo]);
     });
 
     test('add or replace todo', () => {

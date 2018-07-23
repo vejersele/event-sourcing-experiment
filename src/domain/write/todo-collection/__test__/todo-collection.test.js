@@ -13,8 +13,8 @@ describe('TodoCollection', () => {
         const actual = TodoCollection.create(id, name);
 
         // THEN
-        expect(actual.id).toEqual(id);
-        expect(actual.name).toEqual(name);
+        expect(actual.id).toBe(id);
+        expect(actual.name).toBe(name);
     });
 
     test('constructor', () => {
@@ -27,7 +27,7 @@ describe('TodoCollection', () => {
         const actual = new TodoCollection(collectionId, name);
 
         // THEN
-        expect(actual.name).toEqual(name);
-        expect(actual.id).toEqual(collectionId);
+        expect(actual.name).toBe(name);
+        expect(actual.id).toStrictEqual(collectionId);
     });
 });

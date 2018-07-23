@@ -15,7 +15,7 @@ describe('serialization', () => {
         const actual = toJSON(todoCollection);
 
         // THEN
-        expect(actual).toEqual({
+        expect(actual).toStrictEqual({
             id: id.value,
             name: name
         });

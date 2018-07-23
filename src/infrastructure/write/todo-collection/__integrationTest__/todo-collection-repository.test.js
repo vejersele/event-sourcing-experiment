@@ -37,7 +37,7 @@ describe('TodoCollectionRepository', () => {
                 const actual = await repository.findById(id);
 
                 // THEN
-                expect(actual).toEqual(todoCollection);
+                expect(actual).toStrictEqual(todoCollection);
             });
         });
 
@@ -74,7 +74,7 @@ describe('TodoCollectionRepository', () => {
                 const actual = await repository.findById(id);
 
                 // THEN
-                expect(actual).toEqual(todoCollection);
+                expect(actual).toStrictEqual(todoCollection);
             });
         });
     });

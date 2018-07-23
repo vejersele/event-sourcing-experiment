@@ -17,10 +17,10 @@ describe('Todo', () => {
         const actual = Todo.create(id, name, collectionId);
 
         // THEN
-        expect(actual.id).toEqual(id);
-        expect(actual.name).toEqual(name);
-        expect(actual.isCompleted).toEqual(false);
-        expect(actual.collectionId).toEqual(collectionId);
+        expect(actual.id).toStrictEqual(id);
+        expect(actual.name).toBe(name);
+        expect(actual.isCompleted).toBe(false);
+        expect(actual.collectionId).toStrictEqual(collectionId);
     });
 
     test('initialize a Todo', () => {
@@ -34,7 +34,7 @@ describe('Todo', () => {
         const actual = new Todo(id, name, collectionId, isCompleted);
 
         // THEN
-        expect(actual.id).toEqual(id);
+        expect(actual.id).toStrictEqual(id);
         expect(actual.name).toBe(name);
         expect(actual.isCompleted).toBe(isCompleted);
     });

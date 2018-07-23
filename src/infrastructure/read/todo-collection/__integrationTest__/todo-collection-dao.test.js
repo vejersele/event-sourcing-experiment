@@ -46,6 +46,6 @@ describe('TodoCollectionDAO', () => {
         const actual = await dao.findById(todoCollection.id);
 
         // THEN
-        expect(actual).toEqual(todoCollection);
+        expect(actual).toStrictEqual(todoCollection);
     });
 });

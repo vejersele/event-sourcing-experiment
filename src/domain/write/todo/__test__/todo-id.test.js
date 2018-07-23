@@ -19,7 +19,7 @@ describe('TodoId', () => {
             const actual = TodoId.from(id);
 
             // THEN
-            expect(actual.value).toEqual(id);
+            expect(actual.value).toBe(id);
         });
     });
 });

@@ -16,7 +16,7 @@ describe('todo collection - json', () => {
         const actual = serialize(todoCollection);
 
         // THEN
-        expect(actual).toEqual({
+        expect(actual).toStrictEqual({
             id: todoCollection.id,
             name: todoCollection.name,
             todos: todoCollection.todos.map(todo => ({
