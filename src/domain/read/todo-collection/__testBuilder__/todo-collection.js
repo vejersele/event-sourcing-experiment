@@ -1,7 +1,7 @@
 // @flow
 
 import randomString from 'randomstring';
-import { TodoCollection, Todo } from '../../index';
+import { TodoCollection, Todo } from '../index';
 import aTodo from './todo';
 
 class TodoCollectionBuilder {

@@ -2,8 +2,8 @@
 
 import { collectionDAO } from '../../__mocks__/index';
 import { TodoPersistedEvent } from '../../../domain/events/index';
-import aTodo from '../../../domain/read/todo-collection/__test__/builder/todo';
-import aTodoCollection from '../../../domain/read/todo-collection/__test__/builder/todo-collection';
+import aTodo from '../../../domain/read/todo-collection/__testBuilder__/todo';
+import aTodoCollection from '../../../domain/read/todo-collection/__testBuilder__/todo-collection';
 import { TodoCollection, Todo } from '../../../domain/read/todo-collection/index';
 import TodoPersistedHandler from '../todo-persisted-handler';
 
@@ -58,6 +58,7 @@ describe('TodoCollectionPersistedHandler', () => {
 
         // THEN
         const newCollection: TodoCollection = collectionDAOMock.update.mock.calls[0][0];
-        expect(newCollection.todos).toStrictEqual([Todo.create(todo.id, todo.name, isCompleted)]);
+        expect(newCollection.todos.length).toBe(1);
+        expect(newCollection.todos[0].isCompleted).toBe(true);
     });
 });

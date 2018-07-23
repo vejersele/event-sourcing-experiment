@@ -1,7 +1,7 @@
 // @flow
 
 import request from 'supertest';
-import aTodoCollection from '../../domain/read/todo-collection/__test__/builder/todo-collection';
+import aTodoCollection from '../../domain/read/todo-collection/__testBuilder__/todo-collection';
 import { TodoCollection, TodoCollectionId } from '../../domain/write/todo-collection';
 import { TodoCollectionDAO } from '../../infrastructure/read/todo-collection';
 import { TodoCollectionRepository } from '../../infrastructure/write/todo-collection';

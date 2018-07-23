@@ -2,8 +2,8 @@
 
 import Todo from '../todo';
 import TodoCollection from '../todo-collection';
-import aTodo from './builder/todo';
-import aTodoCollection from './builder/todo-collection';
+import aTodo from '../__testBuilder__/todo';
+import aTodoCollection from '../__testBuilder__/todo-collection';
 
 describe('TodoCollection', () => {
     test('create a collection without todos, should default to an empty list', () => {

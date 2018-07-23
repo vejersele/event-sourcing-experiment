@@ -1,7 +1,7 @@
 // @flow
 
 import randomString from 'randomstring';
-import Todo from '../../todo';
+import Todo from '../todo';
 
 class TodoBuilder {
     _id: string;

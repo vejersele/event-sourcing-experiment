@@ -1,6 +1,6 @@
 // @flow
 
-import aTodoCollection from '../../../../domain/read/todo-collection/__test__/builder/todo-collection';
+import aTodoCollection from '../../../../domain/read/todo-collection/__testBuilder__/todo-collection';
 import { serialize } from '../json-serialization';
 
 describe('todo collection - json', () => {
