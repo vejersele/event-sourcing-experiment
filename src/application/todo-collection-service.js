@@ -6,7 +6,7 @@ import {
     type TodoCollectionRepository
 } from '../domain/write/todo-collection';
 import { Todo, TodoId, TodoRepository } from '../domain/write/todo';
-import { TodoCollectionDoesNotExist } from './error';
+import { TodoCollectionDoesNotExist } from './errors';
 
 export default class TodoCollectionService {
     _collectionRepository: TodoCollectionRepository;

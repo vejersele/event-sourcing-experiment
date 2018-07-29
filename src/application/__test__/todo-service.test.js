@@ -66,7 +66,7 @@ describe('TodoService', () => {
         );
 
         // WHEN
-        await todoService.setTodoCompleted(id.value, true);
+        await todoService.markTodoAsCompleted(id.value);
 
         // THEN
         expect(todoRepositoryMock.update).toHaveBeenCalled();
@@ -74,6 +74,25 @@ describe('TodoService', () => {
         const updatedTodo: Todo = todoRepositoryMock.update.mock.calls[0][0];
 
         expect(updatedTodo.isCompleted).toBe(true);
+    });
+
+    test('mark todo as uncompleted', async () => {
+        // GIVEN
+        const id = TodoId.newId();
+        const todo = Todo.create(id, 'my todo', CollectionId.newId());
+        todoRepositoryMock.findById.mockImplementation(
+            _id => (_id.value === id.value ? Promise.resolve(todo) : null)
+        );
+
+        // WHEN
+        await todoService.markTodoAsUnCompleted(id.value);
+
+        // THEN
+        expect(todoRepositoryMock.update).toHaveBeenCalled();
+
+        const updatedTodo: Todo = todoRepositoryMock.update.mock.calls[0][0];
+
+        expect(updatedTodo.isCompleted).toBe(false);
     });
 
     test('set name of todo', async () => {
@@ -87,7 +106,7 @@ describe('TodoService', () => {
         const newName = 'my new name';
 
         // WHEN
-        await todoService.setTodoName(id.value, newName);
+        await todoService.renameTodo(id.value, newName);
 
         // THEN
         expect(todoRepositoryMock.update).toHaveBeenCalled();

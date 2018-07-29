@@ -12,6 +12,7 @@ import { TodoCollectionDAO, toJSON } from '../infrastructure/read/todo-collectio
 import { TodoRepository } from '../infrastructure/write/todo';
 import { TodoCollectionRepository } from '../infrastructure/write/todo-collection';
 import EventBus from '../infrastructure/event-bus';
+import createTransactionWrapper from '../infrastructure/utils/transaction';
 
 const initializeApp = (connection: Connection) => {
     const app = express();
@@ -25,6 +26,8 @@ const initializeApp = (connection: Connection) => {
 
     const todoCollectionService = new TodoCollectionService(todoCollectionRepository);
     const todoService = new TodoService(todoCollectionRepository, todoRepository);
+
+    const transaction = createTransactionWrapper(connection);
 
     eventBus.registerEventHandlers([
         new TodoCollectionPersistedHandler(todoCollectionDao),
@@ -49,7 +52,9 @@ const initializeApp = (connection: Connection) => {
 
         const collectionName: string = string.parse(body.name);
 
-        const collectionId = await todoCollectionService.createTodoCollection(collectionName);
+        const collectionId = await transaction(() =>
+            todoCollectionService.createTodoCollection(collectionName)
+        );
 
         res.status(200).json({
             id: collectionId
@@ -63,7 +68,7 @@ const initializeApp = (connection: Connection) => {
             const collectionId: string = string.parse(body.collectionId);
             const todoName: string = string.parse(body.todoName);
 
-            const id = await todoService.createTodo(todoName, collectionId);
+            const id = await transaction(() => todoService.createTodo(todoName, collectionId));
 
             res.status(200).json({
                 data: {
@@ -82,7 +87,11 @@ const initializeApp = (connection: Connection) => {
             const todoId: string = string.parse(params.id);
             const isCompleted: boolean = boolean.parse(body.isCompleted);
 
-            await todoService.setTodoCompleted(todoId, isCompleted);
+            if (isCompleted) {
+                await transaction(() => todoService.markTodoAsCompleted(todoId));
+            } else {
+                await transaction(() => todoService.markTodoAsUnCompleted(todoId));
+            }
 
             res.status(200).send();
         } catch (e) {

@@ -2,7 +2,7 @@
 
 import { TodoCollectionId, type TodoCollectionRepository } from '../domain/write/todo-collection';
 import { type TodoRepository, TodoId, Todo } from '../domain/write/todo';
-import { TodoCollectionDoesNotExist } from './error';
+import { TodoCollectionDoesNotExist, TodoDoesNotExist } from './errors';
 
 export default class TodoService {
     _todoCollectionRepository: TodoCollectionRepository;
@@ -14,6 +14,16 @@ export default class TodoService {
     ) {
         this._todoCollectionRepository = todoCollectionRepository;
         this._todoRepository = todoRepository;
+    }
+
+    async _getTodoByIdOrThrow(id: string) {
+        const todo = await this._todoRepository.findById(TodoId.from(id));
+
+        if (!todo) {
+            throw new TodoDoesNotExist(`Todo with id ${id} does not exist`);
+        }
+
+        return todo;
     }
 
     async createTodo(todoName: string, collectionIdAsString: string): Promise<string> {
@@ -33,30 +43,24 @@ export default class TodoService {
         return todo.id.value;
     }
 
-    async getTodoByIdOrThrow(id: string) {
-        const todo = await this._todoRepository.findById(TodoId.from(id));
+    async markTodoAsCompleted(id: string): Promise<void> {
+        const todo = await this._getTodoByIdOrThrow(id);
 
-        if (!todo) {
-            throw new Error(`Todo with id ${id} does not exist`);
-        }
-
-        return todo;
-    }
-
-    async setTodoCompleted(id: string, isCompleted: boolean): Promise<void> {
-        const todo = await this.getTodoByIdOrThrow(id);
-
-        if (isCompleted) {
-            todo.markAsCompleted();
-        } else {
-            todo.markAsUncompleted();
-        }
+        todo.markAsCompleted();
 
         await this._todoRepository.update(todo);
     }
 
-    async setTodoName(id: string, name: string): Promise<void> {
-        const todo = await this.getTodoByIdOrThrow(id);
+    async markTodoAsUnCompleted(id: string): Promise<void> {
+        const todo = await this._getTodoByIdOrThrow(id);
+
+        todo.markAsUncompleted();
+
+        await this._todoRepository.update(todo);
+    }
+
+    async renameTodo(id: string, name: string): Promise<void> {
+        const todo = await this._getTodoByIdOrThrow(id);
 
         todo.name = name;
 
