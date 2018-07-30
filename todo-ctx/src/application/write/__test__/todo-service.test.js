@@ -1,13 +1,13 @@
 // @flow
 
-import { Todo } from '../../domain/write/todo';
+import { Todo } from '../../../domain/write/todo';
 import {
     TodoCollectionId as CollectionId,
     TodoCollection
-} from '../../domain/write/todo-collection';
-import { TodoId } from '../../domain/write/todo/index';
+} from '../../../domain/write/todo-collection';
+import { TodoId } from '../../../domain/write/todo/index';
+import * as mocks from '../../__mocks__';
 import TodoService from '../todo-service';
-import * as mocks from '../__mocks__';
 
 describe('TodoService', () => {
     let todoService, collectionRepositoryMock, todoRepositoryMock;

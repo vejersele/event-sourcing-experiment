@@ -1,8 +1,8 @@
 // @flow
 
-import { TodoCollectionId, TodoCollection } from '../../domain/write/todo-collection';
+import * as mocks from '../../__mocks__';
+import { TodoCollectionId, TodoCollection } from '../../../domain/write/todo-collection';
 import TodoCollectionService from '../todo-collection-service';
-import * as mocks from '../__mocks__';
 
 describe('TodoCollectionService', () => {
     let service, collectionRepositoryMock, todoRepositoryMock;
@@ -32,24 +32,6 @@ describe('TodoCollectionService', () => {
             expect(persistedTodoCollection.name).toBe(todoCollectionName);
 
             expect(actual).toBe(persistedTodoCollection.id.value);
-        });
-    });
-
-    describe('getTodoCollectionById', () => {
-        it('should return a todoCollection', async () => {
-            // GIVEN
-            const id = TodoCollectionId.newId();
-            const name = 'myCollection';
-            const todoCollection = TodoCollection.create(id, name);
-
-            collectionRepositoryMock.findById.mockReturnValue(Promise.resolve(todoCollection));
-
-            // WHEN
-            const actual = await service.getTodoCollectionById(id.value);
-
-            // THEN
-            expect(collectionRepositoryMock.findById).toHaveBeenCalledWith(id);
-            expect(actual).toStrictEqual(todoCollection);
         });
     });
 });

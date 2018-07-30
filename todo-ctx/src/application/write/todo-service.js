@@ -1,7 +1,10 @@
 // @flow
 
-import { TodoCollectionId, type TodoCollectionRepository } from '../domain/write/todo-collection';
-import { type TodoRepository, TodoId, Todo } from '../domain/write/todo';
+import {
+    TodoCollectionId,
+    type TodoCollectionRepository
+} from '../../domain/write/todo-collection';
+import { type TodoRepository, TodoId, Todo } from '../../domain/write/todo';
 import { TodoCollectionDoesNotExist, TodoDoesNotExist } from './errors';
 
 export default class TodoService {

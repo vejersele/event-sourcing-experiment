@@ -4,8 +4,8 @@ import {
     TodoCollectionId,
     TodoCollection,
     type TodoCollectionRepository
-} from '../domain/write/todo-collection';
-import { Todo, TodoId, TodoRepository } from '../domain/write/todo';
+} from '../../domain/write/todo-collection';
+import { Todo, TodoId, TodoRepository } from '../../domain/write/todo';
 import { TodoCollectionDoesNotExist } from './errors';
 
 export default class TodoCollectionService {
@@ -22,10 +22,5 @@ export default class TodoCollectionService {
         await this._collectionRepository.persist(todoCollection);
 
         return todoCollection.id.value;
-    }
-
-    async getTodoCollectionById(id: string): Promise<?TodoCollection> {
-        const todoCollection = await this._collectionRepository.findById(TodoCollectionId.from(id));
-        return todoCollection;
     }
 }
